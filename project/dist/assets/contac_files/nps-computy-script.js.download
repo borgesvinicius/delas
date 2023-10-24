@@ -1,0 +1,68 @@
+jQuery(".i0,.i1,.i2,.i3,.i4,.i5,.i6,.i7,.i8,.i9").click(function () {
+	jQuery(".chto").addClass("displayblock");
+
+});
+jQuery(".i10").click(function () {
+	jQuery(".chto").removeClass("displayblock");
+
+});
+
+
+function getCookie(name) {
+	var matches = document.cookie.match(new RegExp(
+			"(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\/\+^])/g, '\$1') + "=([^;]*)"
+	));
+	return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+
+
+/*Проверка если уже проходили голосование с этого компа*/
+
+
+function call(count_day, home_url) {
+
+	if(count_day === 0){
+		document.cookie = "npsgolos=no; path=/; expires=" + 30;
+	}
+	var cuca = getCookie("npsgolos");
+
+	if (cuca == "yes") {
+
+		jQuery("#nps-computy").hide();
+		jQuery("#youbil-computy").show();
+
+
+	} else {
+
+		if (jQuery("input[name=radio]:checked").length > 0) {
+
+
+			var msg = jQuery("#nps-computy").serialize();
+              jQuery(".nps-submit").html('<span class="spiner"></span>');
+
+			jQuery.ajax({
+
+				type: "POST",
+				url : home_url + "/wp-admin/admin-ajax.php", /*cсылка на обработчик*/
+				data: msg,
+
+				success: function (data) {
+					jQuery("#results-nps").html(data);
+					var date = new Date;
+					date.setDate(date.getDate() + count_day);
+					date = date.toUTCString();
+ 					document.cookie = "npsgolos=yes; path=/; expires=" + date;
+
+					jQuery("#nps-computy").hide();
+				},
+				error  : function (xhr, str) {
+					alert("Sorry, there was an error: " + xhr.responseCode);
+				}
+			});
+		} else {
+			jQuery(".nps-radios").addClass("error-nps");
+
+		}
+	}
+}
